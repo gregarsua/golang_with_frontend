@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -53,4 +54,30 @@ func (s *MongoStore) GetUsers() ([]*User, error) {
 	}
 
 	return users, nil
+}
+
+func (s *MongoStore) GetUserByID(userID primitive.ObjectID) (*User, error) {
+	collection := s.db.Collection("users")
+
+	filter := bson.D{{Key: "_id", Value: userID}}
+
+	var user User
+	err := collection.FindOne(context.TODO(), filter).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (s *MongoStore) CreateUser(user *User) error {
+	collection := s.db.Collection("users")
+
+	_, err := collection.InsertOne(context.TODO(), user)
+	if err != nil {
+		log.Printf("error inserting data %v", err)
+		return err
+	}
+
+	return nil
 }

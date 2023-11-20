@@ -2,7 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
@@ -20,16 +24,15 @@ func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	}
 }
 
-// func getID(r *http.Request) (int, error) {
-// 	idStr := mux.Vars(r)["id"]
-// 	id, err := strconv.Atoi(idStr)
+func getID(r *http.Request) (string, error) {
+	idStr := mux.Vars(r)["id"]
+	objectID, err := primitive.ObjectIDFromHex(idStr)
+	if err != nil {
+		return "", fmt.Errorf("invalid id %s: %v", idStr, err)
+	}
 
-// 	if err != nil {
-// 		return id, fmt.Errorf("invalid id %s", idStr)
-// 	}
-
-// 	return id, nil
-// }
+	return objectID.Hex(), nil
+}
 
 // func scanIntoAccount(rows *sql.Rows) (*Users, error) {
 // 	account := new(Users)

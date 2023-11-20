@@ -9,7 +9,8 @@ import (
 
 type Storage interface {
 	GetUsers() ([]*User, error)
-	// GetUsersById(int) (*Users, error)
+	GetUserByID(userID primitive.ObjectID) (*User, error)
+	CreateUser(user *User) error
 }
 
 type APIServer struct {
@@ -34,4 +35,11 @@ type User struct {
 	LastName    string             `bson:"lastName"`
 	Company     string             `bson:"company"`
 	PhoneNumber int64              `bson:"phoneNumer"`
+}
+
+type CreateUserRequest struct {
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	Company     string `json:"company"`
+	PhoneNumber int64  `json:"phoneNumber"`
 }

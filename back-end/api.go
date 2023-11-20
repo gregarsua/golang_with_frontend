@@ -1,11 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func NewAPIServer(listenAddr string, store Storage) *APIServer {
@@ -19,7 +21,7 @@ func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/users", makeHTTPHandleFunc(s.handleUsers))
-	// router.HandleFunc("/user/{id}", makeHTTPHandleFunc(s.handleGetUserById))
+	router.HandleFunc("/users/{id}", makeHTTPHandleFunc(s.handleGetUserById))
 
 	log.Println("JSON API server running on port:", s.listenAddr)
 	http.ListenAndServe(s.listenAddr, router)
@@ -48,26 +50,49 @@ func (s *APIServer) handleGetUsers(w http.ResponseWriter, r *http.Request) error
 }
 
 // GET user by using an id
-// func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) error {
-// 	switch r.Method {
-// 	case "GET":
-// 		id, err := getID(r)
-// 		if err != nil {
-// 			return err
-// 		}
+func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) error {
+	switch r.Method {
+	case "GET":
+		id, err := getID(r)
+		if err != nil {
+			return err
+		}
 
-// 		user, err := s.store.GetUsersById(id)
-// 		if err != nil {
-// 			return nil
-// 		}
+		objectID, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return fmt.Errorf("error creating ObjectID: %v", err)
+		}
 
-// 		return WriteJSON(w, http.StatusOK, user)
-// 	default:
-// 		return fmt.Errorf("method not allowed %s", r.Method)
-// 	}
-// }
+		user, err := s.store.GetUserByID(objectID)
+		if err != nil {
+			return err
+		}
+
+		return WriteJSON(w, http.StatusOK, user)
+	default:
+		return fmt.Errorf("method not allowed %s", r.Method)
+	}
+}
 
 // POST a user on the database
 func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	var createUserRequest CreateUserRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&createUserRequest); err != nil {
+		return fmt.Errorf("error decoding %v", err)
+	}
+
+	user := &User{
+		ID:          primitive.NewObjectID(),
+		FirstName:   createUserRequest.FirstName,
+		LastName:    createUserRequest.LastName,
+		Company:     createUserRequest.Company,
+		PhoneNumber: createUserRequest.PhoneNumber,
+	}
+
+	if err := s.store.CreateUser(user); err != nil {
+		return fmt.Errorf("error creating account %v", err)
+	}
+
+	return WriteJSON(w, http.StatusOK, user)
 }

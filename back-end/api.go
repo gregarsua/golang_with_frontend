@@ -34,6 +34,10 @@ func (s *APIServer) handleUsers(w http.ResponseWriter, r *http.Request) error {
 		return s.handleGetUsers(w, r)
 	case "POST":
 		return s.handleCreateUser(w, r)
+	case "UPDATE":
+		return s.handleUpdateUser(w, r)
+	case "DELETE":
+		return s.handleDeleteUser(w, r)
 	default:
 		return fmt.Errorf("method not allowed %s", r.Method)
 	}
@@ -95,4 +99,14 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 	}
 
 	return WriteJSON(w, http.StatusOK, user)
+}
+
+// UPDATE a user using id
+func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
+	return nil
+}
+
+// DELETE a user by id
+func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) error {
+	return nil
 }

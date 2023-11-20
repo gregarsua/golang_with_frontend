@@ -11,6 +11,8 @@ type Storage interface {
 	GetUsers() ([]*User, error)
 	GetUserByID(userID primitive.ObjectID) (*User, error)
 	CreateUser(user *User) error
+	UpdateUser(user *User) error
+	DeleteUser(user *User) error
 }
 
 type APIServer struct {

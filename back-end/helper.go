@@ -33,14 +33,3 @@ func getID(r *http.Request) (string, error) {
 
 	return objectID.Hex(), nil
 }
-
-// func scanIntoAccount(rows *sql.Rows) (*Users, error) {
-// 	account := new(Users)
-// 	err := rows.Scan(
-// 		&account.ID,
-// 		&account.FirstName,
-// 		&account.LastName,
-// 		&account.Company)
-
-// 	return account, err
-// }

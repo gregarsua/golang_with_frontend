@@ -81,3 +81,11 @@ func (s *MongoStore) CreateUser(user *User) error {
 
 	return nil
 }
+
+func (s *MongoStore) UpdateUser(user *User) error {
+	return nil
+}
+
+func (s *MongoStore) DeleteUser(user *User) error {
+	return nil
+}

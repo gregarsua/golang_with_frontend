@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,7 +12,8 @@ import (
 
 // connect to the database
 func NewMongoDbStore() (*MongoStore, error) {
-	opts := options.Client().ApplyURI("mongodb+srv://gregarsua:1o5Jze45Y5EAHlLc@clustergolang.px9nxvw.mongodb.net/?retryWrites=true&w=majority")
+	mongoURI := os.Getenv("MONGO_URI")
+	opts := options.Client().ApplyURI(mongoURI)
 	client, err := mongo.Connect(context.TODO(), opts)
 	if err != nil {
 		log.Println(err)

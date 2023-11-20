@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import "log"
 
 func main() {
-	fmt.Println("Hello Front-end with Back-end")
+
+	store, err := NewMongoDbStore()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	server := NewAPIServer(":3000", store)
+	server.Run()
 }

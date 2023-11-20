@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// connect to the database
 func NewMongoDbStore() (*MongoStore, error) {
 	opts := options.Client().ApplyURI("mongodb+srv://gregarsua:1o5Jze45Y5EAHlLc@clustergolang.px9nxvw.mongodb.net/?retryWrites=true&w=majority")
 	client, err := mongo.Connect(context.TODO(), opts)
@@ -25,6 +26,7 @@ func NewMongoDbStore() (*MongoStore, error) {
 	}, nil
 }
 
+// get the users from the users collection
 func (s *MongoStore) GetUsers() ([]*User, error) {
 	collection := s.db.Collection("users")
 

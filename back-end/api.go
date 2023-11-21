@@ -34,10 +34,6 @@ func (s *APIServer) handleUsers(w http.ResponseWriter, r *http.Request) error {
 		return s.handleGetUsers(w, r)
 	case "POST":
 		return s.handleCreateUser(w, r)
-	case "UPDATE":
-		return s.handleUpdateUser(w, r)
-	case "DELETE":
-		return s.handleDeleteUser(w, r)
 	default:
 		return fmt.Errorf("method not allowed %s", r.Method)
 	}
@@ -73,6 +69,8 @@ func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) er
 		}
 
 		return WriteJSON(w, http.StatusOK, user)
+	case "DELETE":
+		return s.handleDeleteUser(w, r)
 	default:
 		return fmt.Errorf("method not allowed %s", r.Method)
 	}
@@ -102,11 +100,25 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 }
 
 // UPDATE a user using id
-func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
-	return nil
-}
+// func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
+// 	return nil
+// }
 
 // DELETE a user by id
 func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) error {
-	return nil
+	id, err := getID(r)
+	if err != nil {
+		return err
+	}
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return fmt.Errorf("error creating objectid %v", err)
+	}
+
+	if err := s.store.DeleteUser(objectID); err != nil {
+		return fmt.Errorf("error deleting user %v", err)
+	}
+
+	return WriteJSON(w, http.StatusOK, map[string]string{"message": "User Deleted"})
 }

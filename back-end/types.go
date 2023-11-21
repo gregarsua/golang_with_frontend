@@ -12,7 +12,7 @@ type Storage interface {
 	GetUserByID(userID primitive.ObjectID) (*User, error)
 	CreateUser(user *User) error
 	UpdateUser(user *User) error
-	DeleteUser(user *User) error
+	DeleteUser(userID primitive.ObjectID) error
 }
 
 type APIServer struct {

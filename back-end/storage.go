@@ -29,6 +29,19 @@ func NewMongoDbStore() (*MongoStore, error) {
 	}, nil
 }
 
+// post user to database
+func (s *MongoStore) CreateUser(user *User) error {
+	collection := s.db.Collection("users")
+
+	_, err := collection.InsertOne(context.TODO(), user)
+	if err != nil {
+		log.Printf("error inserting data %v", err)
+		return err
+	}
+
+	return nil
+}
+
 // get the users from the users collection
 func (s *MongoStore) GetUsers() ([]*User, error) {
 	collection := s.db.Collection("users")
@@ -70,22 +83,18 @@ func (s *MongoStore) GetUserByID(userID primitive.ObjectID) (*User, error) {
 	return &user, nil
 }
 
-func (s *MongoStore) CreateUser(user *User) error {
-	collection := s.db.Collection("users")
-
-	_, err := collection.InsertOne(context.TODO(), user)
-	if err != nil {
-		log.Printf("error inserting data %v", err)
-		return err
-	}
-
-	return nil
-}
-
 func (s *MongoStore) UpdateUser(user *User) error {
 	return nil
 }
 
-func (s *MongoStore) DeleteUser(user *User) error {
+func (s *MongoStore) DeleteUser(userID primitive.ObjectID) error {
+	collection := s.db.Collection("users")
+
+	_, err := collection.DeleteOne(context.TODO(), bson.M{"_id": userID})
+	if err != nil {
+		log.Printf("id not found %v", err)
+		return err
+	}
+
 	return nil
 }

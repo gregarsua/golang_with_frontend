@@ -1,6 +1,8 @@
 package main
 
 import (
+	"back-end/storage"
+	"back-end/types"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func NewAPIServer(listenAddr string, store Storage) *APIServer {
+func NewAPIServer(listenAddr string, store storage.Storage) *APIServer {
 	return &APIServer{
 		listenAddr: listenAddr,
 		store:      store,
@@ -80,12 +82,12 @@ func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) er
 
 // POST a user on the database
 func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
-	var createUserRequest CreateUserRequest
+	var createUserRequest types.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&createUserRequest); err != nil {
 		return fmt.Errorf("error decoding %v", err)
 	}
 
-	user := &User{
+	user := &types.User{
 		ID:          primitive.NewObjectID(),
 		FirstName:   createUserRequest.FirstName,
 		LastName:    createUserRequest.LastName,
@@ -132,7 +134,7 @@ func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) err
 		return fmt.Errorf("error creating ObjectID: %v", err)
 	}
 
-	var updatedUser User
+	var updatedUser types.User
 	if err := json.NewDecoder(r.Body).Decode(&updatedUser); err != nil {
 		return fmt.Errorf("error decoding request body: %v", err)
 	}

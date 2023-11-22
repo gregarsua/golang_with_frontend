@@ -1,6 +1,7 @@
 package main
 
 import (
+	"back-end/storage"
 	"log"
 
 	"github.com/joho/godotenv"
@@ -11,7 +12,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	store, err := NewMongoDbStore()
+	store, err := storage.NewMongoDbStore()
 	if err != nil {
 		log.Fatal(err)
 	}

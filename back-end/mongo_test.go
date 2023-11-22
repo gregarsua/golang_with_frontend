@@ -1,13 +1,14 @@
 package main
 
 import (
+	"back-end/storage"
 	"fmt"
 	"testing"
 )
 
 func TestMongoDBIntegration(t *testing.T) {
 	// Create a new MongoDB store
-	mongoStore, err := NewMongoDbStore()
+	mongoStore, err := storage.NewMongoDbStore()
 	if err != nil {
 		t.Fatalf("Error creating MongoDB store: %v", err)
 	}

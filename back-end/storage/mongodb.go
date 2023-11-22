@@ -1,6 +1,7 @@
-package main
+package storage
 
 import (
+	"back-end/types"
 	"context"
 	"log"
 	"os"
@@ -11,6 +12,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+type MongoStore struct {
+	client *mongo.Client
+	db     *mongo.Database
+}
 
 // connect to the database
 func NewMongoDbStore() (*MongoStore, error) {
@@ -31,7 +37,7 @@ func NewMongoDbStore() (*MongoStore, error) {
 }
 
 // post user to database
-func (s *MongoStore) CreateUser(user *User) error {
+func (s *MongoStore) CreateUser(user *types.User) error {
 	collection := s.db.Collection("users")
 
 	_, err := collection.InsertOne(context.TODO(), user)
@@ -44,7 +50,7 @@ func (s *MongoStore) CreateUser(user *User) error {
 }
 
 // get the users from the users collection
-func (s *MongoStore) GetUsers() ([]*User, error) {
+func (s *MongoStore) GetUsers() ([]*types.User, error) {
 	collection := s.db.Collection("users")
 
 	cursor, err := collection.Find(context.TODO(), bson.D{})
@@ -53,9 +59,9 @@ func (s *MongoStore) GetUsers() ([]*User, error) {
 	}
 	defer cursor.Close(context.TODO())
 
-	var users []*User
+	var users []*types.User
 	for cursor.Next(context.TODO()) {
-		var user User
+		var user types.User
 		if err := cursor.Decode(&user); err != nil {
 			log.Printf("Error decoding user document: %v", err)
 			continue // Skip to the next document in case of decoding error
@@ -71,12 +77,12 @@ func (s *MongoStore) GetUsers() ([]*User, error) {
 }
 
 // get the user in the db using id
-func (s *MongoStore) GetUserByID(userID primitive.ObjectID) (*User, error) {
+func (s *MongoStore) GetUserByID(userID primitive.ObjectID) (*types.User, error) {
 	collection := s.db.Collection("users")
 
 	filter := bson.D{{Key: "_id", Value: userID}}
 
-	var user User
+	var user types.User
 	err := collection.FindOne(context.TODO(), filter).Decode(&user)
 	if err != nil {
 		return nil, err
@@ -99,7 +105,7 @@ func (s *MongoStore) DeleteUser(userID primitive.ObjectID) error {
 }
 
 // update user from database
-func (s *MongoStore) UpdateUser(userID primitive.ObjectID, updatedUser *User) error {
+func (s *MongoStore) UpdateUser(userID primitive.ObjectID, updatedUser *types.User) error {
 	collection := s.db.Collection("users")
 
 	filter := bson.M{"_id": userID}

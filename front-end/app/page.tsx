@@ -7,8 +7,8 @@ const handleButtonSubmit = () => {
 export default function Home() {
   return (
     <main className="flex min-h-screen justify-center items-center flex-col">
-      <h1>Hello World</h1>
-      <div className="max-w-4xl mx-auto mt-7 w-full">
+      <h1>Sample API app for GO</h1>
+      <div className="mx-auto mt-14 w-full max-w-lg rounded border-white border py-6 px-5">
         <form>
           <div className="relative z-0 w-full mb-6 group">
             <input

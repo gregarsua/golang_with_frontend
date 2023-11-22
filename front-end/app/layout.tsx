@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sample API",
+  title: "Sample API for GO",
   description: "Created with NextJs and Golang",
 };
 

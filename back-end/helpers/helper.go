@@ -1,4 +1,4 @@
-package main
+package helpers
 
 import (
 	"encoding/json"
@@ -9,6 +9,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type ApiFunc func(http.ResponseWriter, *http.Request) error
+
+type ApiError struct {
+	Error string `json:"error"`
+}
+
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -16,7 +22,7 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	return json.NewEncoder(w).Encode(v)
 }
 
-func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
+func MakeHTTPHandleFunc(f ApiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := f(w, r); err != nil {
 			WriteJSON(w, http.StatusBadRequest, ApiError{Error: err.Error()})
@@ -24,7 +30,7 @@ func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 	}
 }
 
-func getID(r *http.Request) (string, error) {
+func GetID(r *http.Request) (string, error) {
 	idStr := mux.Vars(r)["id"]
 	objectID, err := primitive.ObjectIDFromHex(idStr)
 	if err != nil {

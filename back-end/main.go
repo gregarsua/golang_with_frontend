@@ -1,6 +1,7 @@
 package main
 
 import (
+	"back-end/api"
 	"back-end/storage"
 	"log"
 
@@ -17,6 +18,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	server := NewAPIServer(":3000", store)
+	server := api.NewAPIServer(":3000", store)
 	server.Run()
 }

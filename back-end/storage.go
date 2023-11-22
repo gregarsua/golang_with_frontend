@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -69,6 +70,7 @@ func (s *MongoStore) GetUsers() ([]*User, error) {
 	return users, nil
 }
 
+// get the user in the db using id
 func (s *MongoStore) GetUserByID(userID primitive.ObjectID) (*User, error) {
 	collection := s.db.Collection("users")
 
@@ -83,16 +85,37 @@ func (s *MongoStore) GetUserByID(userID primitive.ObjectID) (*User, error) {
 	return &user, nil
 }
 
-func (s *MongoStore) UpdateUser(user *User) error {
-	return nil
-}
-
+// delete user from database
 func (s *MongoStore) DeleteUser(userID primitive.ObjectID) error {
 	collection := s.db.Collection("users")
 
 	_, err := collection.DeleteOne(context.TODO(), bson.M{"_id": userID})
 	if err != nil {
 		log.Printf("id not found %v", err)
+		return err
+	}
+
+	return nil
+}
+
+// update user from database
+func (s *MongoStore) UpdateUser(userID primitive.ObjectID, updatedUser *User) error {
+	collection := s.db.Collection("users")
+
+	filter := bson.M{"_id": userID}
+	update := bson.M{
+		"$set": bson.M{
+			"firstName":   updatedUser.FirstName,
+			"lastName":    updatedUser.LastName,
+			"company":     updatedUser.Company,
+			"phoneNumber": updatedUser.PhoneNumber,
+			"updatedAt":   time.Now().UTC(),
+		},
+	}
+
+	_, err := collection.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Printf("error updating user %v", err)
 		return err
 	}
 

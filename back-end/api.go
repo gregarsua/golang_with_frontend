@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -27,7 +28,6 @@ func (s *APIServer) Run() {
 	http.ListenAndServe(s.listenAddr, router)
 }
 
-// MAIN function for handling user inquiries to the database
 func (s *APIServer) handleUsers(w http.ResponseWriter, r *http.Request) error {
 	switch r.Method {
 	case "GET":
@@ -69,6 +69,8 @@ func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) er
 		}
 
 		return WriteJSON(w, http.StatusOK, user)
+	case "PUT":
+		return s.handleUpdateUser(w, r)
 	case "DELETE":
 		return s.handleDeleteUser(w, r)
 	default:
@@ -79,7 +81,6 @@ func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) er
 // POST a user on the database
 func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
 	var createUserRequest CreateUserRequest
-
 	if err := json.NewDecoder(r.Body).Decode(&createUserRequest); err != nil {
 		return fmt.Errorf("error decoding %v", err)
 	}
@@ -90,6 +91,7 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 		LastName:    createUserRequest.LastName,
 		Company:     createUserRequest.Company,
 		PhoneNumber: createUserRequest.PhoneNumber,
+		CreatedAt:   time.Now().UTC(),
 	}
 
 	if err := s.store.CreateUser(user); err != nil {
@@ -98,11 +100,6 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 
 	return WriteJSON(w, http.StatusOK, user)
 }
-
-// UPDATE a user using id
-// func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
-// 	return nil
-// }
 
 // DELETE a user by id
 func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) error {
@@ -121,4 +118,29 @@ func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) err
 	}
 
 	return WriteJSON(w, http.StatusOK, map[string]string{"message": "User Deleted"})
+}
+
+// UPDATE user by id
+func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
+	id, err := getID(r)
+	if err != nil {
+		return err
+	}
+
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return fmt.Errorf("error creating ObjectID: %v", err)
+	}
+
+	var updatedUser User
+	if err := json.NewDecoder(r.Body).Decode(&updatedUser); err != nil {
+		return fmt.Errorf("error decoding request body: %v", err)
+	}
+
+	updatedUser.ID = objectID
+	if err := s.store.UpdateUser(objectID, &updatedUser); err != nil {
+		return fmt.Errorf("error updating user: %v", err)
+	}
+
+	return WriteJSON(w, http.StatusOK, map[string]string{"message": "User updated successfully"})
 }

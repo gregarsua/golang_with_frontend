@@ -28,8 +28,6 @@ func NewAPIServer(listenAddr string, store storage.Storage) *APIServer {
 
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
-
-	// router.HandleFunc("/users", helpers.makeHTTPHandleFunc(s.handleUsers))
 	router.HandleFunc("/users", helpers.MakeHTTPHandleFunc(s.handleUsers))
 	router.HandleFunc("/users/{id}", helpers.MakeHTTPHandleFunc(s.handleGetUserById))
 
